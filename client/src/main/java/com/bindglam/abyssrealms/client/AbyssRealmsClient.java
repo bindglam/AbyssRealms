@@ -2,6 +2,7 @@ package com.bindglam.abyssrealms.client;
 
 import com.bindglam.abyssrealms.client.io.Window;
 import lombok.Getter;
+import org.joml.Vector4f;
 
 public final class AbyssRealmsClient implements Runnable {
     @Getter
@@ -22,6 +23,7 @@ public final class AbyssRealmsClient implements Runnable {
         window.init();
 
         while(!window.shouldClose()) {
+            window.setBackgroundColor(new Vector4f(1f, 0f, 0f, 1f));
             window.clear();
 
             window.update();

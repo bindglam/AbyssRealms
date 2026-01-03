@@ -3,6 +3,10 @@ package com.bindglam.abyssrealms.client.io;
 import com.bindglam.abyssrealms.util.Destroyable;
 import com.bindglam.abyssrealms.util.Initializable;
 import com.bindglam.abyssrealms.util.StringUtil;
+import lombok.Getter;
+import lombok.Setter;
+import org.joml.Vector2i;
+import org.joml.Vector4f;
 import org.lwjgl.egl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengles.*;
@@ -12,7 +16,6 @@ import org.tinylog.Logger;
 import java.lang.reflect.Field;
 import java.nio.*;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import static org.lwjgl.egl.EGL10.*;
@@ -23,11 +26,15 @@ import static org.lwjgl.opengles.GLES20.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
+@Getter
 public final class Window implements Initializable, Destroyable {
     private int width, height;
     private String title;
 
     private long handle;
+
+    @Setter
+    private Vector4f backgroundColor = new Vector4f();
 
     public Window(int width, int height, String title) {
         this.width = width;
@@ -54,6 +61,11 @@ public final class Window implements Initializable, Destroyable {
         handle = glfwCreateWindow(width, height, title, NULL, NULL);
         if (handle == NULL)
             throw new RuntimeException("Failed to create the GLFW window");
+
+        glfwSetWindowSizeCallback(handle, (_, w, h) -> {
+            this.width = w;
+            this.height = h;
+        });
 
         try ( MemoryStack stack = stackPush() ) {
             IntBuffer pWidth = stack.mallocInt(1); // int*
@@ -99,6 +111,7 @@ public final class Window implements Initializable, Destroyable {
                         .map(Field::getName).toList(), "[\n     ", ",\n     ", "\n]")
         );
 
+        // OpenGLES capabilities
         glfwMakeContextCurrent(handle);
         GLESCapabilities gles = GLES.createCapabilities();
 
@@ -130,6 +143,8 @@ public final class Window implements Initializable, Destroyable {
     }
 
     public void clear() {
+        glClearColor(backgroundColor.x, backgroundColor.y, backgroundColor.z, backgroundColor.w);
+        glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
     }
 
@@ -147,5 +162,18 @@ public final class Window implements Initializable, Destroyable {
 
         glfwTerminate();
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
+    }
+
+    public void setSize(Vector2i size) {
+        this.width = size.x;
+        this.height = size.y;
+
+        glfwSetWindowSize(handle, width, height);
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+
+        glfwSetWindowTitle(handle, title);
     }
 }
