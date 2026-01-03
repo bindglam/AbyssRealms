@@ -1,12 +1,10 @@
 [versions]
 kotlin = "2.3.0"
-lombok = "1.18.38"
 
 shadow = "9.0.2"
 
 [libraries]
 kotlinJvm = { group = "org.jetbrains.kotlin.jvm", name = "org.jetbrains.kotlin.jvm.gradle.plugin", version.ref = "kotlin" }
-lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
